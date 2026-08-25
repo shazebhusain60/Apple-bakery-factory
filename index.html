@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Apple Bakery Factory</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #1f2937;
+      color: white;
+      padding: 18px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .welcome {
+      margin-bottom: 20px;
+    }
+
+    .welcome h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      color: #666;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .card .number {
+      font-size: 30px;
+      font-weight: bold;
+      color: #111;
+    }
+
+    .section {
+      background: white;
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .section h2 {
+      margin-bottom: 15px;
+    }
+
+    .low-stock {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .low-stock:last-child {
+      border-bottom: none;
+    }
+
+    .status {
+      color: #d97706;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+
+      .welcome h1 {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    🍎 Apple Bakery Factory
+  </header>
+
+  <div class="container">
+
+    <div class="welcome">
+      <h1>Factory Dashboard</h1>
+      <p>Welcome to Apple Bakery Factory Management System</p>
+    </div>
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>Raw Materials</h3>
+        <div class="number" id="rawMaterials">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Finished Products</h3>
+        <div class="number" id="products">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Low Stock Items</h3>
+        <div class="number" id="lowStock">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Today's Production</h3>
+        <div class="number" id="production">0</div>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <h2>⚠ Low Stock Alert</h2>
+
+      <div id="lowStockList">
+        <p>Loading stock information...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";
+    const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+    // Temporary dashboard data
+    document.getElementById("rawMaterials").innerText = 1;
+    document.getElementById("products").innerText = 1;
+    document.getElementById("lowStock").innerText = 1;
+    document.getElementById("production").innerText = 10;
+
+    document.getElementById("lowStockList").innerHTML = `
+      <div class="low-stock">
+        <span>Maida</span>
+        <span class="status">LOW STOCK</span>
+      </div>
+    `;
+  </script>
+
+</body>
+</html>
