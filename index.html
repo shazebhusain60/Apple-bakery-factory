@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apple Bakery Factory</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Apple Bakery Factory</title>
 
   <style>
     * {
@@ -29,9 +28,9 @@
     }
 
     .container {
+      padding: 20px;
       max-width: 1200px;
       margin: auto;
-      padding: 20px;
     }
 
     .welcome {
@@ -39,6 +38,7 @@
     }
 
     .welcome h1 {
+      font-size: 28px;
       margin-bottom: 8px;
     }
 
@@ -52,19 +52,20 @@
     .section {
       background: white;
       padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     .card h3 {
       color: #666;
-      font-size: 14px;
+      font-size: 15px;
       margin-bottom: 10px;
     }
 
-    .number {
+    .card .number {
       font-size: 30px;
       font-weight: bold;
+      color: #111;
     }
 
     .section {
@@ -72,87 +73,14 @@
     }
 
     .section h2 {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 15px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: bold;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    button {
-      border: none;
-      padding: 13px 18px;
-      border-radius: 8px;
-      background: #1f2937;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .success {
-      display: none;
-      margin-top: 15px;
-      padding: 12px;
-      background: #dcfce7;
-      color: #166534;
-      border-radius: 8px;
-    }
-
-    .error {
-      display: none;
-      margin-top: 15px;
-      padding: 12px;
-      background: #fee2e2;
-      color: #b91c1c;
-      border-radius: 8px;
-    }
-
-    .low-stock-item,
-    .history-item {
-      padding: 14px 0;
+    .low-stock {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
       border-bottom: 1px solid #eee;
-    }
-
-    .low-stock-item:last-child,
-    .history-item:last-child {
-      border-bottom: none;
     }
 
     .status {
@@ -160,25 +88,57 @@
       font-weight: bold;
     }
 
-    .empty {
-      color: #666;
-      padding: 15px 0;
+    label {
+      display: block;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      margin-top: 18px;
     }
 
-    .history-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
+    select,
+    input,
+    textarea {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: white;
     }
 
-    .history-name {
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #1f2937;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #message {
+      margin-top: 15px;
       font-weight: bold;
     }
 
-    .history-date {
-      color: #777;
-      font-size: 13px;
-      margin-top: 5px;
+    .success {
+      color: #15803d;
+    }
+
+    .error {
+      color: #dc2626;
     }
 
     @media (max-width: 600px) {
@@ -186,8 +146,8 @@
         padding: 15px;
       }
 
-      .form-grid {
-        grid-template-columns: 1fr;
+      .welcome h1 {
+        font-size: 23px;
       }
     }
   </style>
@@ -195,16 +155,17 @@
 
 <body>
 
-  <header>🍎 Apple Bakery Factory</header>
+  <header>
+    🍎 Apple Bakery Factory
+  </header>
 
   <div class="container">
 
     <div class="welcome">
       <h1>Factory Dashboard</h1>
-      <p>Apple Bakery Factory Management System</p>
+      <p>Welcome to Apple Bakery Factory Management System</p>
     </div>
 
-    <!-- DASHBOARD -->
     <div class="cards">
 
       <div class="card">
@@ -224,198 +185,155 @@
 
       <div class="card">
         <h3>Today's Production</h3>
-        <div class="number" id="todayProduction">0</div>
+        <div class="number" id="production">0</div>
       </div>
 
     </div>
 
-
-    <!-- PRODUCTION ENTRY -->
     <div class="section">
+      <h2>⚠ Low Stock Alert</h2>
+      <div id="lowStockList">
+        <p>Loading stock information...</p>
+      </div>
+    </div>
 
+    <div class="section">
       <h2>🏭 Production Entry</h2>
 
-      <form id="productionForm">
+      <label for="productSelect">Finished Product</label>
+      <select id="productSelect">
+        <option value="">Loading products...</option>
+      </select>
 
-        <div class="form-grid">
+      <label for="quantity">Quantity Produced</label>
+      <input
+        type="number"
+        id="quantity"
+        placeholder="Enter quantity"
+        min="1"
+      >
 
-          <div class="form-group">
-            <label for="productSelect">Finished Product</label>
+      <label for="notes">Notes</label>
+      <textarea
+        id="notes"
+        placeholder="Optional production notes"
+      ></textarea>
 
-            <select id="productSelect" required>
-              <option value="">Loading products...</option>
-            </select>
-          </div>
+      <button id="saveProduction">
+        Save Production
+      </button>
 
-          <div class="form-group">
-            <label for="quantityProduced">Quantity Produced</label>
-
-            <input
-              type="number"
-              id="quantityProduced"
-              min="0.01"
-              step="0.01"
-              placeholder="Enter quantity"
-              required
-            >
-          </div>
-
-          <div class="form-group full">
-            <label for="productionNotes">Notes</label>
-
-            <textarea
-              id="productionNotes"
-              placeholder="Optional production notes"
-            ></textarea>
-          </div>
-
-        </div>
-
-        <button type="submit" id="productionButton">
-          Save Production
-        </button>
-
-      </form>
-
-      <div class="success" id="successMessage"></div>
-      <div class="error" id="errorMessage"></div>
-
-    </div>
-
-
-    <!-- LOW STOCK -->
-    <div class="section">
-
-      <h2>⚠ Low Stock Alert</h2>
-
-      <div id="lowStockList">
-        <div class="empty">Loading...</div>
-      </div>
-
-    </div>
-
-
-    <!-- PRODUCTION HISTORY -->
-    <div class="section">
-
-      <h2>📋 Recent Production</h2>
-
-      <div id="productionHistory">
-        <div class="empty">Loading...</div>
-      </div>
-
+      <div id="message"></div>
     </div>
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
+    // =========================================
+    // SUPABASE CONFIG
+    // =========================================
 
-    // =====================================
-    // SUPABASE
-    // =====================================
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_KEY = "YOUR_PUBLISHABLE_OR_ANON_KEY";
 
-    const SUPABASE_URL =
-      "https://scceqorbmlugvywaqyjj.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_FqRzhKZnyU5HkPoPJFaTEA_omVkwpOV";
-
-    const supabaseClient =
-      supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
-    // =====================================
-    // LOAD ALL PRODUCTS
-    // =====================================
+    // =========================================
+    // LOAD FINISHED PRODUCTS
+    // =========================================
 
     async function loadProducts() {
 
-      const select =
+      const productSelect =
         document.getElementById("productSelect");
 
-      const { data, error } =
-        await supabaseClient
-          .from("products")
-          .select("id, name, current_stock, unit")
-          .order("name");
+      const { data, error } = await supabaseClient
+        .from("finished_products")
+        .select("*")
+        .order("name");
 
       if (error) {
         console.error(error);
 
-        select.innerHTML =
-          `<option value="">Unable to load products</option>`;
+        productSelect.innerHTML =
+          '<option value="">Error loading products</option>';
 
         return;
       }
 
-      select.innerHTML =
-        `<option value="">Select Product</option>`;
+      productSelect.innerHTML =
+        '<option value="">Select Product</option>';
 
       data.forEach(product => {
 
-        select.innerHTML += `
-          <option value="${product.id}">
-            ${product.name}
-            (Stock: ${product.current_stock || 0} ${product.unit || "pcs"})
-          </option>
-        `;
+        const option = document.createElement("option");
+
+        option.value = product.id;
+
+        option.textContent =
+          product.name + " (Stock: " +
+          (product.stock_quantity || 0) + ")";
+
+        productSelect.appendChild(option);
 
       });
 
     }
 
 
-    // =====================================
-    // LOAD DASHBOARD
-    // =====================================
+    // =========================================
+    // LOAD DASHBOARD DATA
+    // =========================================
 
     async function loadDashboard() {
 
-      // RAW MATERIALS
-      const { data: rawMaterials, error: rawError } =
+      // Finished Products
+      const { data: productData, error: productError } =
         await supabaseClient
-          .from("raw_materials")
-          .select("id, name, current_stock, minimum_stock, unit");
+          .from("finished_products")
+          .select("*");
 
-      if (!rawError && rawMaterials) {
+      if (!productError && productData) {
 
-        document.getElementById("rawMaterials").innerText =
-          rawMaterials.length;
+        document.getElementById("products").innerText =
+          productData.length;
 
-        const lowItems =
-          rawMaterials.filter(item =>
-            Number(item.current_stock || 0) <=
-            Number(item.minimum_stock || 0)
+        // Low stock calculation
+        const lowStockProducts =
+          productData.filter(product =>
+            Number(product.stock_quantity || 0) <=
+            Number(product.low_stock_limit || 0)
           );
 
         document.getElementById("lowStock").innerText =
-          lowItems.length;
+          lowStockProducts.length;
 
-        const list =
+        const lowStockList =
           document.getElementById("lowStockList");
 
-        if (lowItems.length === 0) {
+        if (lowStockProducts.length === 0) {
 
-          list.innerHTML =
-            `<div class="empty">✓ No low stock items.</div>`;
+          lowStockList.innerHTML =
+            "<p>All products are sufficiently stocked.</p>";
 
         } else {
 
-          list.innerHTML = "";
+          lowStockList.innerHTML = "";
 
-          lowItems.forEach(item => {
+          lowStockProducts.forEach(product => {
 
-            list.innerHTML += `
-              <div class="low-stock-item">
-                <strong>${item.name}</strong><br>
-                Current: ${item.current_stock || 0} ${item.unit || ""}
-                |
-                Minimum: ${item.minimum_stock || 0} ${item.unit || ""}
-                <br>
+            lowStockList.innerHTML += `
+              <div class="low-stock">
+                <span>
+                  ${product.name}
+                  (Stock: ${product.stock_quantity || 0})
+                </span>
                 <span class="status">LOW STOCK</span>
               </div>
             `;
@@ -426,241 +344,123 @@
 
       }
 
-
-      // PRODUCTS COUNT
-      const { count: productCount, error: productError } =
-        await supabaseClient
-          .from("products")
-          .select("*", {
-            count: "exact",
-            head: true
-          });
-
-      if (!productError) {
-
-        document.getElementById("products").innerText =
-          productCount || 0;
-
-      }
-
-
-      // TODAY'S PRODUCTION
-      const today =
-        new Date().toISOString().split("T")[0];
-
-      const { data: productionData, error: productionError } =
-        await supabaseClient
-          .from("production_entries")
-          .select("quantity_produced, production_date")
-          .gte("production_date", today + "T00:00:00")
-          .lte("production_date", today + "T23:59:59.999");
-
-      if (!productionError && productionData) {
-
-        const total =
-          productionData.reduce(
-            (sum, item) =>
-              sum + Number(item.quantity_produced || 0),
-            0
-          );
-
-        document.getElementById("todayProduction").innerText =
-          total;
-
-      }
-
     }
 
 
-    // =====================================
-    // LOAD PRODUCTION HISTORY
-    // =====================================
-
-    async function loadProductionHistory() {
-
-      const history =
-        document.getElementById("productionHistory");
-
-      const { data, error } =
-        await supabaseClient
-          .from("production_entries")
-          .select(`
-            id,
-            quantity_produced,
-            production_date,
-            notes,
-            products (
-              name,
-              unit
-            )
-          `)
-          .order("production_date", {
-            ascending: false
-          })
-          .limit(10);
-
-      if (error) {
-
-        console.error(error);
-
-        history.innerHTML =
-          `<div class="empty">Unable to load production history.</div>`;
-
-        return;
-      }
-
-      if (!data || data.length === 0) {
-
-        history.innerHTML =
-          `<div class="empty">No production records yet.</div>`;
-
-        return;
-      }
-
-      history.innerHTML = "";
-
-      data.forEach(entry => {
-
-        const date =
-          entry.production_date
-            ? new Date(entry.production_date).toLocaleString()
-            : "";
-
-        const productName =
-          entry.products?.name || "Unknown Product";
-
-        const unit =
-          entry.products?.unit || "";
-
-        history.innerHTML += `
-          <div class="history-item">
-
-            <div class="history-top">
-              <div class="history-name">
-                ${productName}
-              </div>
-
-              <strong>
-                ${entry.quantity_produced} ${unit}
-              </strong>
-            </div>
-
-            <div class="history-date">
-              ${date}
-            </div>
-
-            ${entry.notes
-              ? `<div class="history-date">${entry.notes}</div>`
-              : ""
-            }
-
-          </div>
-        `;
-
-      });
-
-    }
-
-
-    // =====================================
-    // SAVE PRODUCTION ENTRY
-    // =====================================
+    // =========================================
+    // SAVE PRODUCTION
+    // =========================================
 
     document
-      .getElementById("productionForm")
-      .addEventListener("submit", async function(event) {
-
-        event.preventDefault();
+      .getElementById("saveProduction")
+      .addEventListener("click", async function () {
 
         const productId =
           document.getElementById("productSelect").value;
 
         const quantity =
-          document.getElementById("quantityProduced").value;
+          Number(document.getElementById("quantity").value);
 
         const notes =
-          document.getElementById("productionNotes").value.trim();
+          document.getElementById("notes").value;
 
-        const successBox =
-          document.getElementById("successMessage");
+        const message =
+          document.getElementById("message");
 
-        const errorBox =
-          document.getElementById("errorMessage");
+        if (!productId) {
+
+          message.className = "error";
+          message.innerText =
+            "Please select a product.";
+
+          return;
+        }
+
+        if (!quantity || quantity <= 0) {
+
+          message.className = "error";
+          message.innerText =
+            "Please enter a valid quantity.";
+
+          return;
+        }
 
         const button =
-          document.getElementById("productionButton");
-
-
-        successBox.style.display = "none";
-        errorBox.style.display = "none";
+          document.getElementById("saveProduction");
 
         button.disabled = true;
         button.innerText = "Saving...";
 
-
-        const { error } =
+        // Insert production entry
+        const { error: productionError } =
           await supabaseClient
             .from("production_entries")
             .insert([
               {
                 product_id: Number(productId),
-                quantity_produced: Number(quantity),
+                quantity: quantity,
                 notes: notes
               }
             ]);
 
+        if (productionError) {
+
+          console.error(productionError);
+
+          message.className = "error";
+          message.innerText =
+            "Error: " + productionError.message;
+
+          button.disabled = false;
+          button.innerText = "Save Production";
+
+          return;
+        }
+
+        // Get current stock
+        const { data: product, error: fetchError } =
+          await supabaseClient
+            .from("finished_products")
+            .select("stock_quantity")
+            .eq("id", productId)
+            .single();
+
+        if (!fetchError && product) {
+
+          const newStock =
+            Number(product.stock_quantity || 0) + quantity;
+
+          await supabaseClient
+            .from("finished_products")
+            .update({
+              stock_quantity: newStock
+            })
+            .eq("id", productId);
+
+        }
+
+        message.className = "success";
+        message.innerText =
+          "✓ Production saved successfully!";
+
+        document.getElementById("quantity").value = "";
+        document.getElementById("notes").value = "";
 
         button.disabled = false;
         button.innerText = "Save Production";
 
-
-        if (error) {
-
-          console.error(error);
-
-          errorBox.innerText =
-            error.message;
-
-          errorBox.style.display = "block";
-
-          return;
-
-        }
-
-
-        successBox.innerText =
-          "Production saved successfully! Stock has been updated automatically.";
-
-        successBox.style.display = "block";
-
-
-        // RESET FORM
-        document.getElementById(
-          "productionForm"
-        ).reset();
-
-
-        // REFRESH ALL DATA
         await loadProducts();
         await loadDashboard();
-        await loadProductionHistory();
 
       });
 
 
-    // =====================================
+    // =========================================
     // START APP
-    // =====================================
+    // =========================================
 
-    async function startApp() {
-
-      await loadProducts();
-      await loadDashboard();
-      await loadProductionHistory();
-
-    }
-
-    startApp();
+    loadProducts();
+    loadDashboard();
 
   </script>
 
