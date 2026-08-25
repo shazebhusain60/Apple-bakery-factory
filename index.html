@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Apple Bakery Factory</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -22,47 +25,52 @@
     header {
       background: #1f2937;
       color: white;
-      padding: 18px;
-      font-size: 22px;
+      padding: 20px;
+      font-size: 24px;
       font-weight: bold;
     }
 
     .container {
-      padding: 20px;
       max-width: 1200px;
       margin: auto;
+      padding: 25px;
     }
 
     .welcome {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .welcome h1 {
-      font-size: 28px;
+      font-size: 32px;
       margin-bottom: 8px;
+    }
+
+    .welcome p {
+      color: #666;
+      font-size: 17px;
     }
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
     }
 
     .card {
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 22px;
+      border-radius: 15px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     }
 
     .card h3 {
       color: #666;
-      font-size: 15px;
-      margin-bottom: 10px;
+      font-size: 16px;
+      margin-bottom: 12px;
     }
 
-    .card .number {
-      font-size: 30px;
+    .number {
+      font-size: 38px;
       font-weight: bold;
       color: #111;
     }
@@ -70,38 +78,88 @@
     .section {
       background: white;
       margin-top: 25px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 22px;
+      border-radius: 15px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     }
 
     .section h2 {
-      margin-bottom: 15px;
+      margin-bottom: 18px;
+      font-size: 24px;
     }
 
-    .low-stock {
+    .low-stock-item {
       display: flex;
       justify-content: space-between;
-      padding: 15px;
+      align-items: center;
+      padding: 16px 0;
       border-bottom: 1px solid #eee;
     }
 
-    .low-stock:last-child {
+    .low-stock-item:last-child {
       border-bottom: none;
     }
 
+    .product-name {
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    .stock-info {
+      color: #666;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
     .status {
+      background: #fff3cd;
       color: #d97706;
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .loading {
+      color: #777;
+      text-align: center;
+      padding: 25px;
+    }
+
+    .error {
+      color: #dc2626;
+      background: #fee2e2;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .empty {
+      color: #16a34a;
+      text-align: center;
+      padding: 20px;
       font-weight: bold;
     }
 
     @media (max-width: 600px) {
+      header {
+        font-size: 21px;
+      }
+
       .container {
-        padding: 15px;
+        padding: 16px;
       }
 
       .welcome h1 {
-        font-size: 23px;
+        font-size: 27px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .low-stock-item {
+        align-items: flex-start;
+        gap: 12px;
       }
     }
   </style>
@@ -113,12 +171,14 @@
     🍎 Apple Bakery Factory
   </header>
 
+
   <div class="container">
 
     <div class="welcome">
       <h1>Factory Dashboard</h1>
       <p>Welcome to Apple Bakery Factory Management System</p>
     </div>
+
 
     <div class="cards">
 
@@ -127,15 +187,18 @@
         <div class="number" id="rawMaterials">0</div>
       </div>
 
+
       <div class="card">
         <h3>Finished Products</h3>
         <div class="number" id="products">0</div>
       </div>
 
+
       <div class="card">
         <h3>Low Stock Items</h3>
         <div class="number" id="lowStock">0</div>
       </div>
+
 
       <div class="card">
         <h3>Today's Production</h3>
@@ -144,32 +207,312 @@
 
     </div>
 
+
     <div class="section">
+
       <h2>⚠ Low Stock Alert</h2>
 
       <div id="lowStockList">
-        <p>Loading stock information...</p>
+        <div class="loading">
+          Loading stock information...
+        </div>
       </div>
+
     </div>
 
   </div>
 
+
   <script>
-    const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";
-    const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
-    // Temporary dashboard data
-    document.getElementById("rawMaterials").innerText = 1;
-    document.getElementById("products").innerText = 1;
-    document.getElementById("lowStock").innerText = 1;
-    document.getElementById("production").innerText = 10;
+    // ==========================================
+    // SUPABASE CONFIGURATION
+    // ==========================================
 
-    document.getElementById("lowStockList").innerHTML = `
-      <div class="low-stock">
-        <span>Maida</span>
-        <span class="status">LOW STOCK</span>
-      </div>
-    `;
+    const SUPABASE_URL =
+      "https://scceqorbmlugvywaqyjj.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_FqRzhKZnyU5HkPoPJFaTEA_omVkwpOV";
+
+
+    // Create Supabase connection
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+    // ==========================================
+    // LOAD DASHBOARD
+    // ==========================================
+
+    async function loadDashboard() {
+
+      try {
+
+        // ------------------------------------------
+        // RAW MATERIALS COUNT
+        // ------------------------------------------
+
+        const {
+          count: rawCount,
+          error: rawError
+        } = await supabaseClient
+          .from("raw_materials")
+          .select("*", {
+            count: "exact",
+            head: true
+          });
+
+
+        if (rawError) {
+          console.error(
+            "Raw materials error:",
+            rawError
+          );
+        }
+
+
+        document.getElementById(
+          "rawMaterials"
+        ).innerText = rawCount || 0;
+
+
+
+        // ------------------------------------------
+        // FINISHED PRODUCTS COUNT
+        // ------------------------------------------
+
+        const {
+          count: productCount,
+          error: productError
+        } = await supabaseClient
+          .from("products")
+          .select("*", {
+            count: "exact",
+            head: true
+          });
+
+
+        if (productError) {
+          console.error(
+            "Products error:",
+            productError
+          );
+        }
+
+
+        document.getElementById(
+          "products"
+        ).innerText = productCount || 0;
+
+
+
+        // ------------------------------------------
+        // GET RAW MATERIALS
+        // ------------------------------------------
+
+        const {
+          data: rawMaterials,
+          error: stockError
+        } = await supabaseClient
+          .from("raw_materials")
+          .select("*");
+
+
+        if (stockError) {
+          throw stockError;
+        }
+
+
+        // ------------------------------------------
+        // FIND LOW STOCK ITEMS
+        // ------------------------------------------
+
+        const lowStockItems =
+          (rawMaterials || []).filter(item => {
+
+            const currentStock =
+              Number(item.current_stock || 0);
+
+            const minimumStock =
+              Number(item.minimum_stock || 0);
+
+            return (
+              minimumStock > 0 &&
+              currentStock <= minimumStock
+            );
+
+          });
+
+
+        document.getElementById(
+          "lowStock"
+        ).innerText = lowStockItems.length;
+
+
+
+        // ------------------------------------------
+        // SHOW LOW STOCK LIST
+        // ------------------------------------------
+
+        const lowStockList =
+          document.getElementById(
+            "lowStockList"
+          );
+
+
+        if (lowStockItems.length === 0) {
+
+          lowStockList.innerHTML = `
+            <div class="empty">
+              ✓ All raw materials are sufficiently stocked.
+            </div>
+          `;
+
+        } else {
+
+          lowStockList.innerHTML =
+            lowStockItems.map(item => {
+
+              return `
+                <div class="low-stock-item">
+
+                  <div>
+
+                    <div class="product-name">
+                      ${item.name || "Unnamed Item"}
+                    </div>
+
+                    <div class="stock-info">
+                      Current Stock:
+                      ${item.current_stock || 0}
+                      ${item.unit || ""}
+                      <br>
+                      Minimum Stock:
+                      ${item.minimum_stock || 0}
+                      ${item.unit || ""}
+                    </div>
+
+                  </div>
+
+                  <div class="status">
+                    LOW STOCK
+                  </div>
+
+                </div>
+              `;
+
+            }).join("");
+
+        }
+
+
+
+        // ------------------------------------------
+        // TODAY'S PRODUCTION
+        // ------------------------------------------
+        //
+        // फिलहाल production_records table न होने पर
+        // dashboard crash नहीं होगा.
+        //
+
+        const today = new Date();
+
+        today.setHours(
+          0,
+          0,
+          0,
+          0
+        );
+
+
+        const {
+          data: productionData,
+          error: productionError
+        } = await supabaseClient
+          .from("production_records")
+          .select("*")
+          .gte(
+            "created_at",
+            today.toISOString()
+          );
+
+
+        if (!productionError && productionData) {
+
+          let totalProduction = 0;
+
+          productionData.forEach(item => {
+
+            totalProduction += Number(
+              item.quantity || 0
+            );
+
+          });
+
+
+          document.getElementById(
+            "production"
+          ).innerText = totalProduction;
+
+        } else {
+
+          // अभी production_records table
+          // नहीं है तो 0 दिखेगा
+
+          document.getElementById(
+            "production"
+          ).innerText = 0;
+
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          "Dashboard Error:",
+          error
+        );
+
+
+        document.getElementById(
+          "lowStockList"
+        ).innerHTML = `
+
+          <div class="error">
+
+            Unable to load data from Supabase.
+
+            <br><br>
+
+            Check:
+            <br>
+            • Table names
+            <br>
+            • RLS policies
+            <br>
+            • Internet connection
+
+          </div>
+
+        `;
+
+      }
+
+    }
+
+
+
+    // ==========================================
+    // START DASHBOARD
+    // ==========================================
+
+    loadDashboard();
+
+
   </script>
 
 </body>
